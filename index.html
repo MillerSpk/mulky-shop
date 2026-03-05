@@ -725,7 +725,7 @@
     { id:11, name:'Незерит',             price:15, unit:'1 шт.',    img:'images/netherite.png',   tag:'Руда',       desc:'Был добыт потным шахтером' },
     { id:12, name:'Изумрудный блок',     price:5,  unit:'64 шт.',   img:'images/embl.png',        tag:'Руда',       desc:'Hmmm' },
     { id:13, name:'Череп визера',        price:6,  unit:'1 шт.',    img:'images/skull.png',       tag:'Предмет',    desc:'Акция: 3 по цене 3' },
-    { id:14, name:'Шалкер',             price:1,  unit:'1 шт.',    img:'images/shulker.png',     tag:'Хранилище',  desc:'Портативный сундук' },
+    { id:14, name:'Шалкер',             price:1,  unit:'5 шт.',    img:'images/shulker.png',     tag:'Хранилище',  desc:'Портативный сундук' },
     { id:15, name:'Пластинка',           price:1,  unit:'1 шт.',    img:'images/disc.png',        tag:'Предмет',    desc:'Пигстеп имба' },
     { id:16, name:'Шаблон улучшения',           price:4,  unit:'1 шт.',    img:'images/temp.png',        tag:'Шаблон',    desc:'Крутое украшение для брони' },
     { id:17, name:'Шаблон ось',           price:4,  unit:'1 шт.',    img:'images/temp2.png',        tag:'Шаблон',    desc:'Крутое украшение для брони' },
@@ -873,7 +873,8 @@
     if (!items.length) return;
     const summaryItems = items.map(([id, qty]) => {
       const p = products.find(x => x.id == id);
-      return `<div class="summary-item"><span class="item-name">${p.name} × ${qty}</span><span>${fmt(p.price * qty)}</span></div>`;
+      const totalUnits = qty > 1 ? `${qty} × ${p.unit}` : p.unit;
+      return `<div class="summary-item"><span class="item-name">${p.name} — ${totalUnits}</span><span>${fmt(p.price * qty)}</span></div>`;
     }).join('');
     document.getElementById('cartScreen').innerHTML = `
       <button class="back-btn" onclick="renderCartScreen()">← Назад к корзине</button>
@@ -965,7 +966,8 @@
     const items = Object.entries(cart).filter(([,q]) => q > 0);
     const lines = items.map(([id, qty]) => {
       const p = products.find(x => x.id == id);
-      return `- ${p.name} x${qty} — ${fmt(p.price * qty)}`;
+      const totalUnits = qty > 1 ? `${qty} × ${p.unit}` : p.unit;
+      return `- ${p.name}: ${totalUnits} — ${fmt(p.price * qty)}`;
     }).join('\n');
 
     let msg = `MILKY-SHOP — Новый заказ\n`;
