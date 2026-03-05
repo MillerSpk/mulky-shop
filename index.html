@@ -1037,7 +1037,17 @@
           </div>
         </div>
         <div class="address-field" id="addressField">
-          <input type="text" id="buyerAddress" placeholder="X: 100, Y: 64, Z: -200" />
+          <div style="display:flex;gap:8px;align-items:flex-start">
+            <div style="flex:1">
+              <div style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px">X</div>
+              <input type="text" id="coordX" placeholder="100" inputmode="numeric" oninput="validateCoord(this)" />
+            </div>
+            <div style="flex:1">
+              <div style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px">Z</div>
+              <input type="text" id="coordZ" placeholder="-200" inputmode="numeric" oninput="validateCoord(this)" />
+            </div>
+          </div>
+          <div id="coordError" style="display:none;color:#e05a5a;font-size:12px;margin-top:6px;font-weight:500">⚠️ Некорректные координаты</div>
           <span class="world-label">Мир доставки</span>
           <div class="world-select">
             <button type="button" class="world-btn selected" id="world-overworld" onclick="selectWorld('Обычный мир')">
@@ -1071,6 +1081,21 @@
     if (el) el.classList.add('selected');
   }
 
+  function validateCoord(input) {
+    const val = input.value;
+    const valid = /^-?\d*$/.test(val);
+    const errEl = document.getElementById('coordError');
+    if (!valid) {
+      input.style.borderColor = 'var(--danger)';
+      if (errEl) errEl.style.display = 'block';
+      // Strip invalid chars, keep only digits and leading minus
+      input.value = val.replace(/[^0-9\-]/g, '').replace(/(?!^)-/g, '');
+    } else {
+      input.style.borderColor = '';
+      if (errEl) errEl.style.display = 'none';
+    }
+  }
+
   function toggleDelivery() {
     deliveryEnabled = !deliveryEnabled;
     document.getElementById('toggleBox').classList.toggle('checked', deliveryEnabled);
@@ -1085,11 +1110,15 @@
   async function submitOrder() {
     const name    = document.getElementById('buyerName').value.trim();
     const comment = document.getElementById('orderComment').value.trim();
-    const coords  = deliveryEnabled ? document.getElementById('buyerAddress').value.trim() : '';
+    const coordX = deliveryEnabled ? document.getElementById('coordX').value.trim() : '';
+    const coordZ = deliveryEnabled ? document.getElementById('coordZ').value.trim() : '';
+    const coords = (coordX || coordZ) ? `X: ${coordX}, Z: ${coordZ}` : '';
     const errEl   = document.getElementById('errorBanner');
     errEl.classList.remove('show');
     if (!name)   { errEl.textContent = '⚠️ Введите ваш никнейм'; errEl.classList.add('show'); return; }
-    if (deliveryEnabled && !coords) { errEl.textContent = '⚠️ Укажите координаты для доставки'; errEl.classList.add('show'); return; }
+    const coordRegex = /^-?\d+$/;
+    if (deliveryEnabled && (!coordX || !coordZ)) { errEl.textContent = '⚠️ Укажите координаты X и Z для доставки'; errEl.classList.add('show'); return; }
+    if (deliveryEnabled && (!coordRegex.test(coordX) || !coordRegex.test(coordZ))) { errEl.textContent = '⚠️ Некорректные координаты'; errEl.classList.add('show'); return; }
 
     const btn = document.querySelector('.checkout-btn');
     btn.disabled = true;
