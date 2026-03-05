@@ -1099,25 +1099,25 @@
     const lines = items.map(([id, qty]) => {
       const p = products.find(x => x.id == id);
       const totalUnits = qty > 1 ? `${qty} × ${p.unit}` : p.unit;
-      return `- ${p.name}: ${totalUnits} — ${fmt(p.price * qty)}`;
+      return `  • ${p.name}: ${totalUnits} — ${fmt(p.price * qty)}`;
     }).join('\n');
 
-    let msg = `MILKY-SHOP — Новый заказ\n`;
-    msg += `----------------------------\n`;
-    msg += `Никнейм: ${name}\n`;
+    let msg = `🛒 Новый заказ — MILKY-SHOP\n`;
+    msg += `━━━━━━━━━━━━━━━━━━━━\n`;
+    msg += `👤 Игрок: ${name}\n`;
     if (deliveryEnabled) {
-      msg += `Получение: доставка\n`;
-      msg += `Мир: ${selectedWorld}\n`;
-      msg += `Координаты: ${coords}\n`;
+      msg += `🚚 Получение: доставка\n`;
+      msg += `🌍 Мир: ${selectedWorld}\n`;
+      msg += `📍 Координаты: ${coords}\n`;
     } else {
-      msg += `Получение: самовывоз (спавн)\n`;
+      msg += `🏪 Получение: самовывоз на спавне\n`;
     }
-    msg += `----------------------------\n`;
-    msg += `Товары:\n${lines}\n`;
-    if (deliveryEnabled) msg += `Доставка: ${fmt(DELIVERY_COST)}\n`;
-    msg += `----------------------------\n`;
-    if (comment) msg += `Комментарий: ${comment}\n`;
-    msg += `Итого: ${fmt(cartTotal(deliveryEnabled))}`;
+    msg += `━━━━━━━━━━━━━━━━━━━━\n`;
+    msg += `📦 Товары:\n${lines}\n`;
+    if (deliveryEnabled) msg += `🚚 Доставка: ${fmt(DELIVERY_COST)}\n`;
+    if (comment) msg += `━━━━━━━━━━━━━━━━━━━━\n💬 Комментарий: ${comment}\n`;
+    msg += `━━━━━━━━━━━━━━━━━━━━\n`;
+    msg += `💰 Итого: ${fmt(cartTotal(deliveryEnabled))}`;
 
     try {
       const res = await fetch(WORKER_URL, {
@@ -1172,6 +1172,7 @@
           <button class="feedback-type-btn" id="ft-idea" onclick="setFeedbackType('Идея')"><span class="ft-icon">💡</span>Идея</button>
           <button class="feedback-type-btn" id="ft-complaint" onclick="setFeedbackType('Жалоба')"><span class="ft-icon">⚠️</span>Жалоба</button>
         </div>
+        <input type="text" id="feedbackNick" placeholder="Ваш никнейм..." style="margin-bottom:8px" />
         <textarea class="feedback-textarea" id="feedbackText" placeholder="Напишите ваше сообщение..."></textarea>
         <button class="feedback-send-btn" id="feedbackSendBtn" onclick="sendFeedback()">Отправить</button>`;
       feedbackType = 'Отзыв';
@@ -1190,7 +1191,14 @@
   }
 
   async function sendFeedback() {
+    const nick = document.getElementById('feedbackNick').value.trim();
     const text = document.getElementById('feedbackText').value.trim();
+    if (!nick) {
+      document.getElementById('feedbackNick').focus();
+      document.getElementById('feedbackNick').style.borderColor = 'var(--danger)';
+      setTimeout(() => { document.getElementById('feedbackNick').style.borderColor = ''; }, 1500);
+      return;
+    }
     if (!text) {
       document.getElementById('feedbackText').focus();
       document.getElementById('feedbackText').style.borderColor = 'var(--danger)';
@@ -1201,7 +1209,9 @@
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span>';
 
-    const msg = `MILKY-SHOP — ${feedbackType}\n----------------------------\n${text}`;
+    const esc = s => s;
+    const typeEmoji = { 'Отзыв': '⭐', 'Идея': '💡', 'Жалоба': '⚠️' };
+    const msg = `${typeEmoji[feedbackType] || '💬'} ${feedbackType} — MILKY-SHOP\n━━━━━━━━━━━━━━━━━━━━\n👤 Игрок: ${nick}\n\n📝 ${text}`;
 
     try {
       const res = await fetch(WORKER_URL, {
@@ -1249,6 +1259,7 @@
         <span class="ft-icon">⚠️</span>Жалоба
       </button>
     </div>
+    <input type="text" id="feedbackNick" placeholder="Ваш никнейм..." style="margin-bottom:8px" />
     <textarea class="feedback-textarea" id="feedbackText" placeholder="Напишите ваше сообщение..."></textarea>
     <button class="feedback-send-btn" id="feedbackSendBtn" onclick="sendFeedback()">Отправить</button>
   </div>
