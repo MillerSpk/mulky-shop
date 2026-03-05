@@ -31,6 +31,7 @@
       overflow-x: hidden;
     }
 
+    /* Grain overlay */
     body::before {
       content: '';
       position: fixed;
@@ -1189,7 +1190,7 @@
     feedbackOpen = !feedbackOpen;
     document.getElementById('feedbackPopup').classList.toggle('open', feedbackOpen);
     document.getElementById('feedbackBtn').classList.toggle('open', feedbackOpen);
-    document.getElementById('feedbackBtn').textContent = feedbackOpen ? '✕' : '💬';
+    document.getElementById('feedbackBtn').textContent = feedbackOpen ? '+' : '💬';
     if (feedbackOpen) {
       // reset to default state
       document.getElementById('feedbackContent').innerHTML = `
