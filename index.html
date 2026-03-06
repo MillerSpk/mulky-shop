@@ -801,6 +801,64 @@
       .feedback-popup { right: 16px; left: 16px; width: auto; bottom: 90px; }
       .feedback-btn { right: 16px; bottom: 24px; }
     }
+
+    /* CUSTOM ITEM CARD */
+    .card-custom-field {
+      margin-bottom: 10px;
+    }
+    .card-custom-label {
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    .card-custom-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .card-custom-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(168,85,247,0.1);
+    }
+    .card-custom-input::placeholder { color: #444; }
+    .card-custom-price-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+    .card-custom-price-wrap .card-custom-input {
+      border-radius: 8px 0 0 8px;
+      border-right: none;
+    }
+    .card-custom-currency {
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-left: none;
+      border-radius: 0 8px 8px 0;
+      padding: 9px 12px;
+      font-size: 14px;
+      color: var(--accent);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .card-custom-err {
+      font-size: 12px;
+      color: var(--danger);
+      margin-top: 4px;
+      min-height: 16px;
+      display: none;
+    }
+    .card-custom-err.show { display: block; }
   </style>
 </head>
 <body>
@@ -844,6 +902,8 @@
   // ==================================================
 
   const products = [
+    { id:99, name:'Костом',  price:0, unit:'—', img:'images/custom.png', tag:'', custom:true,
+    desc:'Не нашёл нужный товар? Напиши что тебе нужно и назначь свою цену — продавец рассмотрит заявку и возможно свяжется с тобой.' },
     { id:1,  name:'Шерсть',              price:1,  unit:'3 стака',  img:'images/wool.png',        tag:'Блок',       desc:'Цвет указывайте в комментарии к заказу' },
     { id:2,  name:'Призмарин',           price:1,  unit:'64 шт.',    img:'images/prismarine.gif',  tag:'Блок',       desc:'Красивый декоративный блок' },
     { id:3,  name:'Трезубец',            price:35, unit:'1 шт.',    img:'images/trident.png',     tag:'Инструмент', desc:'Зачарования указывайте в комментарии' },
@@ -873,6 +933,7 @@
   ];
 
   let cart = {};
+  let customOrder = null;
   const DELIVERY_COST = 5;
 
   const fmt = n => n + ' АР';
@@ -898,9 +959,79 @@
     renderProducts();
   }
 
+  function renderCustomCard(p) {
+    return `
+      <div class="card" id="card-${p.id}">
+        <div class="card-img-placeholder">
+          <img src="${p.img}" alt="${p.name}" onerror="this.style.display='none'" />
+        </div>
+        <div class="card-body">
+          <div class="card-tag">${p.tag}</div>
+          <div class="card-name">${p.name}</div>
+          <div class="card-desc">${p.desc}</div>
+          <div class="card-custom-field">
+            <div class="card-custom-label">Что нужно?</div>
+            <textarea class="card-custom-input" id="customDesc" rows="2" placeholder="Опишите что хотите заказать..."></textarea>
+          </div>
+          <div class="card-custom-field">
+            <div class="card-custom-label">Ваша цена</div>
+            <div class="card-custom-price-wrap">
+              <input type="text" class="card-custom-input" id="customPrice" placeholder="0" inputmode="numeric" oninput="validateCustomPrice(this)" />
+              <div class="card-custom-currency">АР</div>
+            </div>
+            <div class="card-custom-err" id="customPriceErr">Только цифры</div>
+          </div>
+          <button class="add-btn" style="width:100%;justify-content:center;margin-top:4px" id="addbtn-${p.id}" onclick="addCustomToCart()">
+            <span>+</span> В корзину
+          </button>
+        </div>
+      </div>`;
+  }
+
+  function validateCustomPrice(input) {
+    const val = input.value;
+    const valid = /^\d*$/.test(val);
+    const err = document.getElementById('customPriceErr');
+    if (!valid) {
+      input.value = val.replace(/[^\d]/g, '');
+      input.style.borderColor = 'var(--danger)';
+      if (err) err.classList.add('show');
+    } else {
+      input.style.borderColor = '';
+      if (err) err.classList.remove('show');
+    }
+  }
+
+  function addCustomToCart() {
+    const desc = document.getElementById('customDesc').value.trim();
+    const price = parseInt(document.getElementById('customPrice').value.trim()) || 0;
+    if (!desc) {
+      document.getElementById('customDesc').style.borderColor = 'var(--danger)';
+      setTimeout(() => { document.getElementById('customDesc').style.borderColor = ''; }, 1500);
+      showToast('⚠️ Опишите что вам нужно');
+      return;
+    }
+    if (!price) {
+      document.getElementById('customPrice').style.borderColor = 'var(--danger)';
+      setTimeout(() => { document.getElementById('customPrice').style.borderColor = ''; }, 1500);
+      showToast('⚠️ Укажите цену');
+      return;
+    }
+    customOrder = { desc, price };
+    cart[99] = 1;
+    updateCartCount();
+    const btn = document.getElementById('addbtn-99');
+    btn.classList.add('added');
+    btn.innerHTML = '<span>✓</span> Добавлено';
+    setTimeout(() => { btn.classList.remove('added'); btn.innerHTML = '<span>+</span> В корзину'; }, 1500);
+    showToast('✅ Заявка добавлена в корзину');
+  }
+
   function renderProducts() {
     const filtered = activeCategory === 'Все' ? products : products.filter(p => p.tag === activeCategory);
-    document.getElementById('productsGrid').innerHTML = filtered.map(p => `
+    document.getElementById('productsGrid').innerHTML = filtered.map(p => {
+      if (p.custom) return renderCustomCard(p);
+      return `
       <div class="card" id="card-${p.id}">
         <div class="card-img-placeholder">
           <img src="${p.img}" alt="${p.name}" onerror="this.style.display='none'" />
@@ -919,7 +1050,8 @@
             </button>
           </div>
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   }
 
   function addToCart(id) {
@@ -942,6 +1074,7 @@
 
   function cartSubtotal() {
     return Object.entries(cart).reduce((sum, [id, qty]) => {
+      if (id == 99 && customOrder) return sum + customOrder.price;
       return sum + products.find(x => x.id == id).price * qty;
     }, 0);
   }
@@ -971,6 +1104,18 @@
     }
     const itemsHTML = items.map(([id, qty]) => {
       const p = products.find(x => x.id == id);
+      if (id == 99 && customOrder) {
+        return `<div class="cart-item">
+          <div class="cart-item-info">
+            <div class="cart-item-name">Костом</div>
+            <div class="cart-item-price" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${customOrder.desc}</div>
+          </div>
+          <div class="cart-item-qty">
+            <button class="qty-btn" onclick="changeQty(${id},-1)">−</button>
+          </div>
+          <div class="cart-item-total">${fmt(customOrder.price)}</div>
+        </div>`;
+      }
       return `<div class="cart-item">
         <div class="cart-item-info">
           <div class="cart-item-name">${p.name}</div>
@@ -996,7 +1141,10 @@
 
   function changeQty(id, delta) {
     cart[id] = Math.max(0, (cart[id] || 0) + delta);
-    if (!cart[id]) delete cart[id];
+    if (!cart[id]) {
+      delete cart[id];
+      if (id == 99) customOrder = null;
+    }
     updateCartCount();
     renderCartScreen();
   }
@@ -1006,6 +1154,9 @@
     if (!items.length) return;
     const summaryItems = items.map(([id, qty]) => {
       const p = products.find(x => x.id == id);
+      if (id == 99 && customOrder) {
+        return `<div class="summary-item"><span class="item-name">Костом — ${customOrder.desc.slice(0,30)}${customOrder.desc.length>30?'…':''}</span><span>${fmt(customOrder.price)}</span></div>`;
+      }
       const totalUnits = qty > 1 ? `${qty} × ${p.unit}` : p.unit;
       return `<div class="summary-item"><span class="item-name">${p.name} — ${totalUnits}</span><span>${fmt(p.price * qty)}</span></div>`;
     }).join('');
@@ -1127,6 +1278,9 @@
 
     const items = Object.entries(cart).filter(([,q]) => q > 0);
     const lines = items.map(([id, qty]) => {
+      if (id == 99 && customOrder) {
+        return `  • Костом: ${customOrder.desc} — ${fmt(customOrder.price)}`;
+      }
       const p = products.find(x => x.id == id);
       const totalUnits = qty > 1 ? `${qty} × ${p.unit}` : p.unit;
       return `  • ${p.name}: ${totalUnits} — ${fmt(p.price * qty)}`;
@@ -1157,7 +1311,7 @@
       });
       const data = await res.json();
       if (!data.ok) throw new Error(data.error || 'Ошибка сервера');
-      cart = {}; deliveryEnabled = false; updateCartCount();
+      cart = {}; deliveryEnabled = false; customOrder = null; updateCartCount();
       document.getElementById('cartScreen').innerHTML = `
         <div class="success-screen">
           <div class="success-icon">🎉</div>
