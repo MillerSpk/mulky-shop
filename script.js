@@ -1,6 +1,6 @@
   const WORKER_URL = 'https://milkyshop.kirilldrobysevskij78.workers.dev';
   const products = [
-    { id:99, name:'Костом',  price:0, unit:'—', img:'images/custom.png', tag:'', custom:true,
+    { id:99, name:'Кастом',  price:0, unit:'—', img:'images/custom.png', tag:'', custom:true,
     desc:'Не нашёл нужный товар? Напиши что тебе нужно и назначь свою цену — продавец рассмотрит заявку и возможно свяжется с тобой.' },
     { id:1,  name:'Шерсть',              price:1,  unit:'3 стака',  img:'images/wool.png',        tag:'Блок',       desc:'Цвет указывайте в комментарии к заказу' },
     { id:2,  name:'Призмарин',           price:1,  unit:'64 шт.',    img:'images/prismarine.gif',  tag:'Блок',       desc:'Красивый декоративный блок' },
