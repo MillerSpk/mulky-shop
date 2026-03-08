@@ -205,7 +205,7 @@
       if (id == 99 && customOrder) {
         return `<div class="cart-item">
           <div class="cart-item-info">
-            <div class="cart-item-name">Костом</div>
+            <div class="cart-item-name">Кастом</div>
             <div class="cart-item-price" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${customOrder.desc}</div>
           </div>
           <div class="cart-item-qty">
@@ -253,7 +253,7 @@
     const summaryItems = items.map(([id, qty]) => {
       const p = products.find(x => x.id == id);
       if (id == 99 && customOrder) {
-        return `<div class="summary-item"><span class="item-name">Костом — ${customOrder.desc.slice(0,30)}${customOrder.desc.length>30?'…':''}</span><span>${fmt(customOrder.price)}</span></div>`;
+        return `<div class="summary-item"><span class="item-name">Кастом — ${customOrder.desc.slice(0,30)}${customOrder.desc.length>30?'…':''}</span><span>${fmt(customOrder.price)}</span></div>`;
       }
       const totalUnits = qty > 1 ? `${qty} × ${p.unit}` : p.unit;
       return `<div class="summary-item"><span class="item-name">${p.name} — ${totalUnits}</span><span>${fmt(p.price * qty)}</span></div>`;
@@ -377,7 +377,7 @@
     const items = Object.entries(cart).filter(([,q]) => q > 0);
     const lines = items.map(([id, qty]) => {
       if (id == 99 && customOrder) {
-        return `  • Костом: ${customOrder.desc} — ${fmt(customOrder.price)}`;
+        return `  • Кастом: ${customOrder.desc} — ${fmt(customOrder.price)}`;
       }
       const p = products.find(x => x.id == id);
       const totalUnits = qty > 1 ? `${qty} × ${p.unit}` : p.unit;
